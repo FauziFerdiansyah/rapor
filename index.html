@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RAPOR MAMAH MI - GENERATE NILAI HARIAN</title>
+    <link rel="icon" type="image/png" href="./plus.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row g-0">
+            <h3 class="col-md-7">Generate Nilai</h3>
+            <div class="col-md-5">
+                <div class="row g-2 float-end">
+                    <div class="col-md-3">
+                        <button type="button" id="copyTable" class="btn btn-dark mb-3 d-block w-100">Salin</button>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="number" min="1" class="form-control" id="inputValue" placeholder="Jumlah Kolom">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-primary btn-action mb-3 d-block w-100">Generate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class="table table-hover table-bordered table-striped mt-3">
+            <thead>
+                <tr>
+                    <th scope="col" width="3%">#</th>
+                    <th scope="col">Nama Siswa</th>
+                    <th scope="col" width="5%">Nilai</th>
+                    <th scope="col" width="10%">Input Hasil</th>
+                    <th scope="col" width="5%">PAS/PAT</th>
+                    <th scope="col" width="10%">Rapor</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider"></tbody>
+        </table>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+    <script>
+        
+        
+        // ##### Script List Table -------------------------------------------------------------------
+        $(document).ready(function() {
+            // ###### DAFTAR NAMA -------------------------------------------------------------------
+            const nameList = [
+                "AHZA DANISH PERMANA", "ALIFA NAUVALIN FIKIRA RABBANI", "ALULA FAIHA SHAKILLA", "ANGGRAENI SAFITRI", "DAVI GUSTIAWAN", "DEWI SARTIKA", "ENDEN AKBAR", "GALANG ERLANGGA ANARKI", "HISNI SALAMAH", "ILESTA SEKAR ARUMI", "ILMI SILFIA EFENDI", "KAMILA SYARIFATUN NISA", "M. BAGAS RADIANSYAH", "MAHIRA AKSANA KISKA", "MOCHAMAD REZA ATIFAH", "MUHAMAD ABDUL MUGHI", "MUHAMAD AKBAR SYAWALUDIN", "MUHAMAD ALFI ALIFQI", "MUHAMAD ROSYIT", "MUHAMMAD FAISHAL FIRDAUS", "MUHAMMAD YUSUP NABHANI", "NASYA ALMISKY SYAHPUTRI", "NUGIE SAPUTRA KUSNANDAR", "REPAN", "RIZA KHALDAFFI DEWANGGA", "SILVIANA AGISTA", "SRI NIANTI"
+            ];
+
+            // ##### Script Generate Init Table -------------------------------------------------------------------
+            const tableBody = $('.table-group-divider');
+
+            $.each(nameList, function(index, namaSiswa) {
+                const row = $('<tr></tr>');
+
+                const rowNumber = $('<th></th>').attr('scope', 'row').text(index + 1 + '.');
+                row.append(rowNumber);
+
+                const id = 'NS' + pad(index + 1, 3); // Membuat ID unik dengan 5 karakter
+                const namaSiswaCell = $('<td></td>').addClass('nama-siswa').attr('id', id).text(namaSiswa);
+                row.append(namaSiswaCell);
+
+                const nilaiCell = $('<td></td>');
+                row.append(nilaiCell);
+
+                const inputCell = $('<td></td>');
+                const inputNilai = $('<input></input>').attr('type', 'number').addClass('form-control inputNumber form-input').attr('data-id', id);
+                inputCell.append(inputNilai);
+                row.append(inputCell);
+
+                const nilaiPAS = $('<td>-</td>').attr('class', 'value-pas');
+                row.append(nilaiPAS);
+
+                const inputCellRapor = $('<td></td>');
+                const inputNilaiRapor = $('<input></input>').attr('type', 'number').addClass('form-control inputNumber form-rapor').attr('data-id', id);
+                inputCellRapor.append(inputNilaiRapor);
+                row.append(inputCellRapor);
+
+                tableBody.append(row);
+            });
+
+            // Fungsi untuk mengisi nol pada angka yang kurang dari 3 digit
+            function pad(num, size) {
+                let padded = num.toString();
+                while (padded.length < size) {
+                    padded = '0' + padded;
+                }
+                return padded;
+            }
+
+            $('.btn-action').click(function() {
+                const jumlahKolom = parseInt($('#inputValue').val());
+                const tableHead = $('thead tr');
+                const tableBody = $('tbody');
+
+                // Hapus kolom "Nilai"
+                tableHead.find('th:contains("Nilai")').remove();
+                tableBody.find('td:contains("Nilai")').remove();
+
+                // Tambahkan judul kolom Nilai baru setelah kolom "Nama Siswa"
+                const namaSiswaCol = tableHead.find('th:contains("Nama Siswa")');
+                for (let i = jumlahKolom; i >= 1; i--) {
+                    const judulKolom = $('<th></th>').attr('scope', 'col').attr('width', '6%').text('Nilai-' + i).attr('data-dynamic', true);
+                    namaSiswaCol.after(judulKolom);
+                }
+
+                // Hapus elemen <td> kosong
+                tableBody.find('tr td').filter(function() {
+                    return $.trim($(this).html()) === '';
+                }).remove();
+
+                // Tambahkan kolom nilai pada setiap baris siswa setelah kolom "Nama Siswa"
+                tableBody.find('tr').each(function() {
+                    const currentRow = $(this);
+                    for (let i = jumlahKolom; i >= 1; i--) {
+                    const idTD = currentRow.find('td.nama-siswa').attr('id');
+                    const nilaiCell = $('<td></td>').attr('class', [i +'-'+ idTD + ' data-value-gen']).attr('data-dynamic', true);
+                    currentRow.find('td.nama-siswa').after(nilaiCell);
+                    }
+                });
+            });
+
+            $('.inputNumber').on('input', function() {
+                $(this).val(function(_, val) {
+                return val.replace(/[^0-9]/g, ''); // Hapus karakter selain angka
+                });
+
+                if ($(this).val().charAt(0) === '0') {
+                $(this).val(function(_, val) {
+                    return val.slice(1); // Menghapus angka 0 pertama
+                });
+                }
+            });
+
+            // ##### Script Nilai Harian -------------------------------------------------------------------
+            function generateValues(targetValue, totalValues, maxAttempts) {
+                const minValue = 65;
+                const maxValue = 80;
+
+                if (targetValue === minValue) {
+                    return Array(totalValues).fill(minValue);
+                } else if (targetValue < minValue) {
+                    return Array(totalValues).fill("-");
+                } else if (targetValue > maxValue) {
+                    return Array(totalValues).fill("-");
+                } else if (targetValue === maxValue) {
+                    return Array(totalValues).fill(maxValue);
+                }
+
+                let values = [];
+                let attempts = 0;
+
+                while (attempts < maxAttempts) {
+                    values = [];
+                    let sum = 0;
+
+                    for (let i = 0; i < totalValues - 1; i++) {
+                    let value = Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue;
+                    values.push(value);
+                    sum += value;
+                    }
+
+                    let lastValue = targetValue * totalValues - sum;
+                    if (lastValue >= minValue && lastValue <= maxValue) {
+                    values.push(lastValue);
+                    return values;
+                    }
+
+                    attempts++;
+                }
+
+                // Handle when targetValue cannot be achieved within maxAttempts
+                console.log("Cannot generate values that match the target.");
+                return Array(totalValues).fill("-");
+            }
+            
+            $('input[type="number"].form-input').on('input', function() {
+                var targetValue = parseInt($(this).val());
+                var row = $(this).closest('tr');
+                var dynamicColumns = row.find('td[data-dynamic="true"]');
+                var numDynamicColumns = dynamicColumns.length;
+
+                var maxAttempts = 100; // Adjust this value as needed
+
+                // Generate values
+                var generatedValues = generateValues(targetValue, numDynamicColumns, maxAttempts);
+
+                // Assign generated values to dynamic columns
+                dynamicColumns.each(function(index) {
+                    var value = generatedValues[index];
+                    $(this).text(value);
+                });
+            });
+
+            // ##### Script PAS/PAT -------------------------------------------------------------------
+            // function generateValuePAS(targetValue, minValue, maxValue) {
+            //     if (targetValue === minValue || targetValue < minValue || targetValue > maxValue) {
+            //         return "-";
+            //     } else {
+            //         return Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue;
+            //     }
+            // }
+
+            // $('input[type="number"].form-rapor').on('input', function() {
+            //     var targetValue = parseInt($(this).val());
+            //     var row = $(this).closest('tr');
+            //     var valuePasCell = row.find('.value-pas');
+            //     var inputValueCell = row.find('.form-input');
+            //     var minValue = 65;
+            //     var maxValue = 80;
+
+            //     // Get the value from form-input cell
+            //     var inputCellValue = parseInt(inputValueCell.val());
+
+            //     // Check if the input value is a valid number
+            //     if (isNaN(inputCellValue)) {
+            //         // Handle the case when input value is not a valid number
+            //         valuePasCell.text("-");
+            //         return;
+            //     }
+
+            //     // Generate value for value-pas cell
+            //     var generatedValuePas = generateValuePAS(targetValue, minValue, maxValue);
+
+            //     // Check if the generated value is a valid number
+            //     if (isNaN(generatedValuePas)) {
+            //         // Handle the case when generated value is not a valid number
+            //         valuePasCell.text("-");
+            //         return;
+            //     }
+
+            //     // Calculate the rounded value for value-pas cell
+            //     var roundedValuePas = Math.ceil((targetValue * 2) - inputCellValue);
+
+            //     // Check if the rounded value is within the valid range
+            //     if (roundedValuePas < minValue || roundedValuePas > maxValue) {
+            //         valuePasCell.text("-");
+            //         return;
+            //     }
+
+            //     // Assign the rounded value to value-pas cell
+            //     valuePasCell.text(roundedValuePas);
+            // });
+
+
+            function generateValues(targetValue, totalValues, maxAttempts) {
+                const minValue = 65;
+                const maxValue = 80;
+
+                if (targetValue === minValue) {
+                    return [minValue, minValue];
+                } else if (targetValue < minValue) {
+                    return ["-", "-"];
+                } else if (targetValue > maxValue) {
+                    return ["-", "-"];
+                } else if (targetValue === maxValue) {
+                    return [maxValue, maxValue];
+                }
+
+                let values = [];
+                let attempts = 0;
+
+                while (attempts < maxAttempts) {
+                    values = [];
+                    let sum = 0;
+
+                    for (let i = 0; i < totalValues - 1; i++) {
+                        let value = Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue;
+                        values.push(value);
+                        sum += value;
+                    }
+
+                    let lastValue = targetValue * totalValues - sum;
+                    if (lastValue >= minValue && lastValue <= maxValue) {
+                        values.push(lastValue);
+                        return values;
+                    }
+
+                    attempts++;
+                }
+
+                // Handle when targetValue cannot be achieved within maxAttempts
+                console.log("Cannot generate values that match the target.");
+                return ["-", "-"];
+            }
+
+            $('input[type="number"].form-rapor').on('input', function() {
+                var targetValue = parseInt($(this).val());
+                var row = $(this).closest('tr');
+                var valuePasCell = row.find('.value-pas');
+                var inputValueCell = row.find('.form-input');
+                var minValue = 65;
+                var maxValue = 80;
+
+                // Generate values
+                var generatedValues = generateValues(targetValue, 2, 100);
+
+                // Assign generated values to value-pas cell and form-input cell
+                valuePasCell.text(generatedValues[0]);
+                inputValueCell.val(generatedValues[1]);
+
+                // Trigger input event on form-input cell
+                inputValueCell.trigger('input');
+            });
+
+            // Menyalin data tabel saat tombol "Salin" diklik
+            $('#copyTable').click(function() {
+                // Salin judul tabel
+                var tableTitle = $('table').prev('h2').text();
+                var copiedData = tableTitle + '\n';
+
+                // Salin header kolom
+                var headerRow = [];
+                $('thead th').each(function() {
+                var headerText = $(this).text();
+                headerRow.push(headerText);
+                });
+                copiedData += headerRow.join('\t') + '\n';
+
+                // Salin isi tabel
+                $('tbody tr').each(function() {
+                var rowData = [];
+                $(this).find('th, td').each(function() {
+                    var cellText;
+                    if ($(this).hasClass('value-pas')) {
+                    cellText = $(this).text();
+                    } else {
+                    var input = $(this).find('input');
+                    if (input.length > 0) {
+                        cellText = input.val();
+                    } else {
+                        cellText = $(this).text();
+                    }
+                    }
+                    rowData.push(cellText);
+                });
+                copiedData += rowData.join('\t') + '\n';
+                });
+
+                // Salin ke clipboard
+                var el = document.createElement('textarea');
+                el.value = copiedData;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+
+                // Tampilkan pesan
+                alert("Data berhasil disalin");
+            });
+
+        });
+
+    </script>
+</body>
+</html>
